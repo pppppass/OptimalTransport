@@ -1,5 +1,5 @@
 % !TeX encoding = UTF-8
-% !TeX program = XeLaTeX
+% !TeX program = LuaLaTeX
 % !TeX spellcheck = LaTeX
 
 % Author : lzh
@@ -7,83 +7,122 @@
 
 % This file cannot be typeset directly.
 
+\ProvidesPackage{Definition}[2017/10/25 Definition of lzh's Notes]
+
+\DeclareOption{cancel}{\def\lzhdef@cancel\relax}
+\DeclareOption{ulem}{\def\lzhdef@ulem\relax}
+\DeclareOption{esint}{\def\lzhdef@esint\relax}
+\DeclareOption{esvect}{\def\lzhdef@esvect\relax}
+\DeclareOption{tensor}{\def\lzhdef@tensor\relax}
+\DeclareOption{mathrsfs}{\def\lzhdef@mathrsfs\relax}
+\DeclareOption{paper}{\def\lzhdef@paper\relax}
+\DeclareOption{yhaccent}{\def\lzhdef@yhaccent\relax}
+\DeclareOption{cmrgreekup}{\def\lzhdef@cmrgreekup\relax}
+\DeclareOption{safebm}{\def\lzhdef@safebm\relax}
+\DeclareOption{si}{\def\lzhdef@si\relax}
+\DeclareOption{algorithm}{\def\lzhdef@algorithm\relax}
+\DeclareOption{listings}{\def\lzhdef@listings\relax}
+\DeclareOption{longtable}{\def\lzhdef@longtable\relax}
+\DeclareOption{chemfig}{\def\lzhdef@chemfig\relax}
+\DeclareOption{tikz}{\def\lzhdef@tikz\relax}
+\ProcessOptions
+
 \RequirePackage{etoolbox}
-\RequirePackage[LGR,T1]{fontenc}
 \RequirePackage{amsmath}
 \RequirePackage{amsfonts}
 \RequirePackage{amssymb}
-\RequirePackage{esvect}
-\RequirePackage{mathrsfs}
-
-% Decrease the number of fonts allocated by bm package, everything
-% will be faster if commenting the following 2 lines, but this may
-% lead to font conlicts
-\newcommand\hmmax{0}
-\newcommand\bmmax{0}
-\RequirePackage{bm}
-%%%%%%%%%%%%%%%%%%%%%%%%
-
-\RequirePackage{cancel}
-\RequirePackage[normalem]{ulem}
-\RequirePackage{esint}
-\RequirePackage{tensor}
-\RequirePackage{chemfig}
-
-% Stop these packages when beamer is used
-\ifdefined\PKUS@IsBeamer\else
-\RequirePackage{ntheorem}
-\RequirePackage{enumitem}
-\fi
-%%%%%%%%%%%%%%%%%%%%%%%%
-
-\RequirePackage{algorithm2e}
+\RequirePackage{amsxtra}
 \RequirePackage{mathtools}
-\RequirePackage{longtable}
-\RequirePackage[all, pdf]{xy}
+
+\ifdefined\lzhdef@cancel%
+\RequirePackage{cancel}%
+\fi
+\ifdefined\lzhdef@ulem%
+\RequirePackage[normalem]{ulem}%
+\fi
+\ifdefined\lzhdef@esint%
+\RequirePackage{esint}%
+\fi
+\ifdefined\lzhdef@esvect%
+\RequirePackage{esvect}%
+\fi
+\ifdefined\lzhdef@tensor%
+\RequirePackage{tensor}%
+\fi
+\ifdefined\lzhdef@mathrsfs%
+\RequirePackage{mathrsfs}%
+\fi
+
+\ifdefined\lzhdef@yhaccent%
+\DeclareSymbolFont{largesymbolsyhmath}{OMX}{yhex}{m}{n}%
+\DeclareMathAccent{\widetilde}{\mathord}{largesymbolsyhmath}{"65}%
+\DeclareMathAccent{\widehat}{\mathord}{largesymbolsyhmath}{"62}%
+\DeclareMathAccent{\widetriangle}{\mathord}{largesymbolsyhmath}{"E6}%
+\DeclareMathAccent{\wideparen}{\mathord}{largesymbolsyhmath}{"F3}%
+\fi
+
+\ifdefined\lzhdef@cmrgreekup%
+\RequirePackage[LGR,T1]{fontenc}%
+\DeclareSymbolFont{greekupcbgreek}{LGR}{cmr}{m}{n}%
+\SetSymbolFont{greekupcbgreek}{bold}{LGR}{cmr}{m}{n}%
+\DeclareMathSymbol{\alphaup}{\mathord}{greekupcbgreek}{97}%
+\DeclareMathSymbol{\betaup}{\mathord}{greekupcbgreek}{98}%
+\DeclareMathSymbol{\gammaup}{\mathord}{greekupcbgreek}{103}%
+\DeclareMathSymbol{\deltaup}{\mathord}{greekupcbgreek}{100}%
+\DeclareMathSymbol{\epsilonup}{\mathord}{greekupcbgreek}{101}%
+\DeclareMathSymbol{\zetaup}{\mathord}{greekupcbgreek}{122}%
+\DeclareMathSymbol{\etaup}{\mathord}{greekupcbgreek}{104}%
+\DeclareMathSymbol{\thetaup}{\mathord}{greekupcbgreek}{106}%
+\DeclareMathSymbol{\iotaup}{\mathord}{greekupcbgreek}{105}%
+\DeclareMathSymbol{\kappaup}{\mathord}{greekupcbgreek}{107}%
+\DeclareMathSymbol{\lambdaup}{\mathord}{greekupcbgreek}{108}%
+\DeclareMathSymbol{\muup}{\mathord}{greekupcbgreek}{109}%
+\DeclareMathSymbol{\nuup}{\mathord}{greekupcbgreek}{110}%
+\DeclareMathSymbol{\xiup}{\mathord}{greekupcbgreek}{120}%
+\DeclareMathSymbol{\piup}{\mathord}{greekupcbgreek}{112}%
+\DeclareMathSymbol{\rhoup}{\mathord}{greekupcbgreek}{114}%
+\DeclareMathSymbol{\sigmaup}{\mathord}{greekupcbgreek}{115}%
+\DeclareMathSymbol{\tauup}{\mathord}{greekupcbgreek}{116}%
+\DeclareMathSymbol{\upsilonup}{\mathord}{greekupcbgreek}{117}%
+\DeclareMathSymbol{\phiup}{\mathord}{greekupcbgreek}{102}%
+\DeclareMathSymbol{\chiup}{\mathord}{greekupcbgreek}{113}%
+\DeclareMathSymbol{\psiup}{\mathord}{greekupcbgreek}{121}%
+\DeclareMathSymbol{\omegaup}{\mathord}{greekupcbgreek}{119}%
+\fi
+
+\ifdefined\lzhdef@safebm%
+\newcommand\hmmax{0}%
+\newcommand\bmmax{0}%
+\fi
+\RequirePackage{bm}
+
+\ifdefined\lzhdef@si%
+\RequirePackage{siunitx}%
+\let\Si\si%
+\let\si\relax%
+\fi
+
+\ifdefined\lzhdef@algorithm%
+\RequirePackage{algorithm2e}%
+\fi
+\ifdefined\lzhdef@listings%
+\RequirePackage{listings}%
+\fi
+\ifdefined\lzhdef@longtable%
+\RequirePackage{longtable}%
+\fi
+\ifdefined\lzhdef@chemfig%
+\RequirePackage{chemfig}%
+\fi
+\ifdefined\lzhdef@tikz%
+\RequirePackage{tikz}%
+\fi
+
 \RequirePackage{hyperref}
 \RequirePackage[multidot]{grffile}
-\RequirePackage{siunitx}
-\RequirePackage{listings}
 \RequirePackage{cprotect}
 \RequirePackage{chngcntr}
 \RequirePackage{pdfpages}
-
-\let\Si\si
-\let\si\relax
-
-% Math accents from yhmath package, which corrupts with newtxmath package
-\DeclareSymbolFont{largesymbolsyhmath}{OMX}{yhex}{m}{n}
-\DeclareMathAccent{\widetilde}{\mathord}{largesymbolsyhmath}{"65}
-\DeclareMathAccent{\widehat}{\mathord}{largesymbolsyhmath}{"62}
-\DeclareMathAccent{\widetriangle}{\mathord}{largesymbolsyhmath}{"E6}
-\DeclareMathAccent{\wideparen}{\mathord}{largesymbolsyhmath}{"F3}
-%%%%%%%%%%%%%%%%%%%%%%%%
-
-\DeclareSymbolFont{greekupcbgreek}{LGR}{cmr}{m}{n}
-\SetSymbolFont{greekupcbgreek}{bold}{LGR}{cmr}{m}{n}
-\DeclareMathSymbol{\alphaup}{\mathord}{greekupcbgreek}{97}
-\DeclareMathSymbol{\betaup}{\mathord}{greekupcbgreek}{98}
-\DeclareMathSymbol{\gammaup}{\mathord}{greekupcbgreek}{103}
-\DeclareMathSymbol{\deltaup}{\mathord}{greekupcbgreek}{100}
-\DeclareMathSymbol{\epsilonup}{\mathord}{greekupcbgreek}{101}
-\DeclareMathSymbol{\zetaup}{\mathord}{greekupcbgreek}{122}
-\DeclareMathSymbol{\etaup}{\mathord}{greekupcbgreek}{104}
-\DeclareMathSymbol{\thetaup}{\mathord}{greekupcbgreek}{106}
-\DeclareMathSymbol{\iotaup}{\mathord}{greekupcbgreek}{105}
-\DeclareMathSymbol{\kappaup}{\mathord}{greekupcbgreek}{107}
-\DeclareMathSymbol{\lambdaup}{\mathord}{greekupcbgreek}{108}
-\DeclareMathSymbol{\muup}{\mathord}{greekupcbgreek}{109}
-\DeclareMathSymbol{\nuup}{\mathord}{greekupcbgreek}{110}
-\DeclareMathSymbol{\xiup}{\mathord}{greekupcbgreek}{120}
-\DeclareMathSymbol{\piup}{\mathord}{greekupcbgreek}{112}
-\DeclareMathSymbol{\rhoup}{\mathord}{greekupcbgreek}{114}
-\DeclareMathSymbol{\sigmaup}{\mathord}{greekupcbgreek}{115}
-\DeclareMathSymbol{\tauup}{\mathord}{greekupcbgreek}{116}
-\DeclareMathSymbol{\upsilonup}{\mathord}{greekupcbgreek}{117}
-\DeclareMathSymbol{\phiup}{\mathord}{greekupcbgreek}{102}
-\DeclareMathSymbol{\chiup}{\mathord}{greekupcbgreek}{113}
-\DeclareMathSymbol{\psiup}{\mathord}{greekupcbgreek}{121}
-\DeclareMathSymbol{\omegaup}{\mathord}{greekupcbgreek}{119}
 
 \newcommand{\Aset}{\mathbb{A}}
 \newcommand{\Bset}{\mathbb{B}}
@@ -474,22 +513,6 @@
 \newcommand{\ptbin}[1]{\mathbin{\phantom{#1}}}
 \newcommand{\ptop}[1]{\mathop{\phantom{#1}}}
 
-\newcommand\ListGuideItemCommand[1]{\llap{\makebox{\emph{#1}}\makebox[\parindent]{\dotfill}\ \ }}
-
-\newcommand\ListGuideAlignCommand{\llap{\makebox{$\xrightarrow{\hspace{\parindent}}$}\ \ }}
-
-\newenvironment{partlist}[1][]
-	{\begin{enumerate}[itemsep=0pt, label=(\arabic*), wide, labelindent=\parindent, listparindent=\parindent, #1]}
-	{\end{enumerate}}
-
-\newenvironment{partpartlist}[1][]
-	{\begin{enumerate}[itemsep=0pt, label=(\roman*), wide, labelindent=2\parindent, listparindent=2\parindent, #1]}
-	{\end{enumerate}}
-
-\newenvironment{partpartpartlist}[1][]
-	{\begin{enumerate}[itemsep=0pt, label=\alph*., wide, labelindent=3\parindent, listparindent=3\parindent, #1]}
-	{\end{enumerate}}
-
 \newcommand{\DefinitionWord}{Definition}
 \newcommand{\ConceptWord}{Concept}
 \newcommand{\NotationWord}{Notation}
@@ -506,191 +529,127 @@
 \newcommand{\AbstractWord}{Abstract}
 \newcommand{\UsageWord}{Usage}
 
-% Stop ntheorem's definitions when beamer class is present, with only several environments preserved
-\ifdefined\PKUS@IsBeamer
-\newtheorem{thmtheorem}{\TheoremWord}
-\else
-\newtheoremstyle{nonameplain}
-	{\item[\theorem@headerfont\hskip\labelsep{##2}\theorem@separator]}
-	{\item[\theorem@headerfont\hskip \labelsep{##2}\ (##3)\theorem@separator]}
-\newtheoremstyle{nonameindent}
-	{\item[\theorem@headerfont\hskip\labelsep\hspace{\parindent}##2\theorem@separator]}
-	{\item[\theorem@headerfont\hskip \labelsep\hspace{\parindent}##2\ (##3)\theorem@separator]}
-\newtheoremstyle{nonumberindent}
-	{\item[\theorem@headerfont\hskip\labelsep\hspace{\parindent}##1\theorem@separator]}
-	{\item[\theorem@headerfont\hskip \labelsep\hspace{\parindent}##1\ (##3)\theorem@separator]}
-
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmdefinition}{\hspace{\parindent}\DefinitionWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmconcept}{\hspace{\parindent}\ConceptWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmnotation}{\hspace{\parindent}\NotationWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmproperty}{\hspace{\parindent}\PropertyWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmexample}{\hspace{\parindent}\ExampleWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmquestion}{\hspace{\parindent}\QuestionWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmtheorem}{\hspace{\parindent}\TheoremWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmlemma}{\hspace{\parindent}\LemmaWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmcorollary}{\hspace{\parindent}\CorollaryWord}
-}
-{
-	\theoremstyle{plain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmalgorithm}{\hspace{\parindent}\AlgorithmWord}
-}
-{
-	\theoremstyle{nonumberplain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmproof}{\hspace{\parindent}\ProofWord}
-}
-{
-	\theoremstyle{nonumberplain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmanswer}{\hspace{\parindent}\AnswerWord}
-}
-{
-	\theoremstyle{nonumberplain}
-	\theorembodyfont{\normalfont\itshape}
-	\newtheorem{thmremark}{\hspace{\parindent}\RemarkWord}
-}
-{
-	\theoremstyle{nonumberplain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmabstract}{\hspace{\parindent}\AbstractWord}
-}
-{
-	\theoremstyle{nonumberplain}
-	\theorembodyfont{\normalfont}
-	\newtheorem{thmusage}{\hspace{\parindent}\UsageWord}
-}
-
-\numberwithin{thmdefinition}{section}
-\numberwithin{thmconcept}{section}
-\numberwithin{thmnotation}{section}
-\numberwithin{thmproperty}{section}
-\numberwithin{thmexample}{section}
-\numberwithin{thmquestion}{section}
-\numberwithin{thmtheorem}{section}
-\numberwithin{thmlemma}{section}
-\numberwithin{thmcorollary}{section}
-\numberwithin{thmalgorithm}{section}
-\numberwithin{thmproof}{section}
-\numberwithin{thmanswer}{section}
-\numberwithin{thmremark}{section}
-\numberwithin{thmabstract}{section}
-\numberwithin{thmusage}{section}
-
-\newcommand\StartDefinition
+\ifdefined\lzhdef@paper%
+\RequirePackage{ntheorem}%
+\RequirePackage{enumitem}%
+%
+\newenvironment{partlist}[1][]%
+	{\begin{enumerate}[itemsep=0pt, label=(\arabic*), wide, labelindent=\parindent, listparindent=\parindent, #1]}%
+	{\end{enumerate}}%
+%
+\newenvironment{partpartlist}[1][]%
+	{\begin{enumerate}[itemsep=0pt, label=(\roman*), wide, labelindent=2\parindent, listparindent=2\parindent, #1]}%
+	{\end{enumerate}}%
+%
+\newenvironment{partpartpartlist}[1][]%
+	{\begin{enumerate}[itemsep=0pt, label=\alph*., wide, labelindent=3\parindent, listparindent=3\parindent, #1]}%
+	{\end{enumerate}}%
+%
+\newtheoremstyle{nonameplain}%
+	{\item[\theorem@headerfont\hskip\labelsep{##2}\theorem@separator]}%
+	{\item[\theorem@headerfont\hskip \labelsep{##2}\ (##3)\theorem@separator]}%
+\newtheoremstyle{nonameindent}%
+	{\item[\theorem@headerfont\hskip\labelsep\hspace{\parindent}##2\theorem@separator]}%
+	{\item[\theorem@headerfont\hskip \labelsep\hspace{\parindent}##2\ (##3)\theorem@separator]}%
+\newtheoremstyle{nonumberindent}%
+	{\item[\theorem@headerfont\hskip\labelsep\hspace{\parindent}##1\theorem@separator]}%
+	{\item[\theorem@headerfont\hskip \labelsep\hspace{\parindent}##1\ (##3)\theorem@separator]}%
+%
 {%
-    \refstepcounter{thmdefinition}
-	{\bfseries \DefinitionWord \arabic{section}.\arabic{thmdefinition}} %
-}
-\newcommand\StartConcept
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmdefinition}{\hspace{\parindent}\DefinitionWord}%
+}%
 {%
-    \refstepcounter{thmconcept}
-	{\bfseries \ConceptWord \arabic{section}.\arabic{thmconcept}} %
-}
-\newcommand\StartNotation
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmconcept}{\hspace{\parindent}\ConceptWord}%
+}%
 {%
-    \refstepcounter{thmnotation}
-	{\bfseries \NotationWord \arabic{section}.\arabic{thmnotation}} %
-}
-\newcommand\StartProperty
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmnotation}{\hspace{\parindent}\NotationWord}%
+}%
 {%
-    \refstepcounter{thmproperty}
-	{\bfseries \PropertyWord \arabic{section}.\arabic{thmproperty}} %
-}
-\newcommand\StartExample
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmproperty}{\hspace{\parindent}\PropertyWord}%
+}%
 {%
-    \refstepcounter{thmexample}
-	{\bfseries \ExampleWord \arabic{section}.\arabic{thmexample}} %
-}
-\newcommand\StartQuestion
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmexample}{\hspace{\parindent}\ExampleWord}%
+}%
 {%
-    \refstepcounter{thmquestion}
-	{\bfseries \QuestionWord \arabic{section}.\arabic{thmquestion}} %
-}
-\newcommand\StartTheorem
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmquestion}{\hspace{\parindent}\QuestionWord}%
+}%
 {%
-    \refstepcounter{thmtheorem}
-	{\bfseries \TheoremWord \arabic{section}.\arabic{thmtheorem}} %
-}
-\newcommand\StartLemma
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmtheorem}{\hspace{\parindent}\TheoremWord}%
+}%
 {%
-    \refstepcounter{thmlemma}
-	{\bfseries \LemmaWord \arabic{section}.\arabic{thmlemma}} %
-}
-\newcommand\StartCorollary
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmlemma}{\hspace{\parindent}\LemmaWord}%
+}%
 {%
-    \refstepcounter{thmcorollary}
-	{\bfseries \CorollaryWord \arabic{section}.\arabic{thmcorollary}} %
-}
-\newcommand\StartAlgorithm
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmcorollary}{\hspace{\parindent}\CorollaryWord}%
+}%
 {%
-    \refstepcounter{thmalgorithm}
-	{\bfseries \AlgorithmWord \arabic{section}.\arabic{thmalgorithm}} %
-}
-\newcommand\StartProof
+	\theoremstyle{plain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmalgorithm}{\hspace{\parindent}\AlgorithmWord}%
+}%
 {%
-    \refstepcounter{thmproof}
-	{\bfseries \ProofWord} %
-}
-\newcommand\StartAnswer
+	\theoremstyle{nonumberplain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmproof}{\hspace{\parindent}\ProofWord}%
+}%
 {%
-    \refstepcounter{thmanswer}
-	{\bfseries \AnswerWord} %
-}
-\newcommand\StartRemark
+	\theoremstyle{nonumberplain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmanswer}{\hspace{\parindent}\AnswerWord}%
+}%
 {%
-    \refstepcounter{thmremark}
-	{\bfseries \RemarkWord} %
-}
-\newcommand\StartAbstract
+	\theoremstyle{nonumberplain}%
+	\theorembodyfont{\normalfont\itshape}%
+	\newtheorem{thmremark}{\hspace{\parindent}\RemarkWord}%
+}%
 {%
-    \refstepcounter{thmabstract}
-	{\bfseries \AbstractWord} %
-}
-\newcommand\StartUsage
+	\theoremstyle{nonumberplain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmabstract}{\hspace{\parindent}\AbstractWord}%
+}%
 {%
-    \refstepcounter{thmusage}
-	{\bfseries \UsageWord} %
-}
+	\theoremstyle{nonumberplain}%
+	\theorembodyfont{\normalfont}%
+	\newtheorem{thmusage}{\hspace{\parindent}\UsageWord}%
+}%
+%
+\numberwithin{thmdefinition}{section}%
+\numberwithin{thmconcept}{section}%
+\numberwithin{thmnotation}{section}%
+\numberwithin{thmproperty}{section}%
+\numberwithin{thmexample}{section}%
+\numberwithin{thmquestion}{section}%
+\numberwithin{thmtheorem}{section}%
+\numberwithin{thmlemma}{section}%
+\numberwithin{thmcorollary}{section}%
+\numberwithin{thmalgorithm}{section}%
+\numberwithin{thmproof}{section}%
+\numberwithin{thmanswer}{section}%
+\numberwithin{thmremark}{section}%
+\numberwithin{thmabstract}{section}%
+\numberwithin{thmusage}{section}%
 \fi
-%%%%%%%%%%%%%%%%%%%%%%%%
 
 \numberwithin{equation}{section}
 \numberwithin{figure}{section}
 \numberwithin{table}{section}
+
 \setcounter{MaxMatrixCols}{30}
