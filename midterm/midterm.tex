@@ -1,5 +1,5 @@
-% !TeX encoding = UTF-8
-% !TeX program = XeLaTeX
+% !TeX encoding = UTF-8 Unicode
+% !TeX program = LuaLaTeX
 % !TeX spellcheck = LaTeX
 
 % Author : lzh
@@ -11,7 +11,7 @@
 
 \ctexset{today=old}
 
-\newcommand{\cuniversity}{Peking University}
+\newcommand{\cuniversity}{Peking University }
 \newcommand{\cthesisname}{Convex Optimization}
 \newcommand{\titlemark}{Convex Optimization Project Midterm Report}
 
@@ -25,10 +25,44 @@
 	\end{tabular}%
 }
 
-	\begin{document}
+\begin{document}
 
-	\maketitle
+\maketitle
 
-Here is some content.
+\par Our group is interested in the second problem, which is about optimal transport. Since many tough problems in various fields such as biological and medical imaging could transform into an optimal transport problem, it is crucial to find an efficient and reliable method to solve this problem. And our research would focus on finding such solutions.
 
-	\end{document}
+\section{Description to the Problem}
+In order to find a solution to this problem, we first formulate the original problem into the following linear programming form:
+$$\begin{array}{rl}
+	\text{min} & \displaystyle\sum_{i=1}^m\sum_{j=1}^n c_{ij}\pi_{ij}\\
+	\text{subject to} & \displaystyle\sum_{j=1}^n\pi_{ij}=\mu_i\ \forall i=1,\cdots,m\\
+	& \displaystyle\sum_{i=1}^m\pi_{ij}=\nu_i\ \forall j=1,\cdots,n\\
+	& \displaystyle\pi_{ij}\ge 0
+\end{array}$$
+where $c_{ij}$ denote the distance between $i$ and $j$, and $\pi_{ij}$ are variables to solve.
+
+\section{Works We Have Done}
+\par We have solved the previous linear programming problem in interior method and simplex method by calling MOSEK directly. 
+\par In our numerical experiments, we used random generated images ($\sqrt{m}\times\sqrt{m}$) as experimental subjects, and assumed $m=n$. Each component of $\mu$ and $\nu$ are pixel values of the images (greater than 0 and less than 10000). We used Euclidean distance to represent the distance between $i$ and $j$ ($c_{ij}=\sqrt{(i_1-j_1)^2+(i_2-j_2)^2}$, where $i_1, j_1, i_2, j_2$ are the first and second coordinate of $i$ and $j$ in the images). We first sampled two randomized images of the same size, and then applied interior point methods and simplex methods in MOSEK to solve the problem. There are three type of  image size in our testing data: $16\times 16$, $32\times 32$ and $64\times 64$. Results of running time are included in the following table:
+\begin{table}[h]
+\caption{Running Time (s) on Each Method}
+\centering
+\begin{tabular}{c|cc}
+	\hline
+	& Simplex Method & Interior Point Method\\
+	\hline
+	$16\times 16$ & 0.15 & 0.36\\
+	\hline
+	$32\times 32$ & 3.99 & 12.84 \\
+	\hline
+	$64\times 64$ & 134.36 & 349.04 \\
+	\hline
+\end{tabular}
+\end{table}
+
+\textbf{ADD EFFICIENCY AND OTHER EVALUATIONS HERE.}
+
+\section{Further Research}
+\par In the further research of this topic, we would first do more numerical experiments on different experimental subjects, such as test objects given in DOTmark. We would also implement some other methods  to solve this problem, and in the mean time we would analyze the properties of these methods. Besides, we are going to read the paper \emph{DOTmark — A Benchmark for Discrete Optimal Transport} and \emph{Multiscale Strategies for Computing Optimal Transport}. And we would compare methods in these papers with existing methods and find out advantages and disadvantages about them. And if time permits, we would try some way to improve these methods.
+\par Since the forms of optimal transport problems are very special, it could be possible to find some specific methods for such problems. And the time and efficiency may be much better than solving linear programming problem directly. This is another way for our future research.
+\end{document}
