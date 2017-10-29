@@ -7,7 +7,7 @@
 
 % This file cannot be typeset directly.
 
-\ProvidesClass{PKUPaper}[2017/10/25 PKU-style paper class]
+\ProvidesClass{PKUPaper}[2017/10/30 PKU-style paper class]
 
 \DeclareOption{english}{\def\PKUPaper@english\relax}
 \ProcessOptions
@@ -105,4 +105,5 @@
 
 \ifdefined\PKUPaper@english%
 \renewcommand\figurename{Figure}%
+\renewcommand\tablename{Table}%
 \fi

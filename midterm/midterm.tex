@@ -7,7 +7,7 @@
 
 \documentclass[english]{PKUPaper}
 
-\usepackage[paper]{Definition}
+\usepackage[si, paper]{Definition}
 
 \ctexset{today=old}
 
@@ -29,27 +29,33 @@
 
 \maketitle
 
-\par Our group is interested in the second problem, which is about optimal transport. Since many tough problems in various fields such as biological and medical imaging could transform into an optimal transport problem, it is crucial to find an efficient and reliable method to solve this problem. And our research would focus on finding such solutions.
+Our group is interested in the second problem, which is about optimal transport. Since many tough problems in various fields (e.g. medical imaging, biological feature identification, and some new-introduced neural networks) may be reformulated into optimal transport problems, it is crucial to find an efficient and reliable method to solve this problem. Our research will focus on finding such solutions.
 
 \section{Description to the Problem}
+
 In order to find a solution to this problem, we first formulate the original problem into the following linear programming form:
-$$\begin{array}{rl}
-	\text{min} & \displaystyle\sum_{i=1}^m\sum_{j=1}^n c_{ij}\pi_{ij}\\
+\begin{equation} \label{Eq:StandardOptimalTransport}
+\begin{array}{rl}
+	\text{minimize} & \displaystyle\sum_{i=1}^m\sum_{j=1}^n c_{ij}\pi_{ij}\\
 	\text{subject to} & \displaystyle\sum_{j=1}^n\pi_{ij}=\mu_i\ \forall i=1,\cdots,m\\
 	& \displaystyle\sum_{i=1}^m\pi_{ij}=\nu_i\ \forall j=1,\cdots,n\\
 	& \displaystyle\pi_{ij}\ge 0
-\end{array}$$
+\end{array}
+\end{equation}
 where $c_{ij}$ denote the distance between $i$ and $j$, and $\pi_{ij}$ are variables to solve.
 
 \section{Works We Have Done}
-\par We have solved the previous linear programming problem in interior method and simplex method by calling MOSEK directly. 
-\par In our numerical experiments, we used random generated images ($\sqrt{m}\times\sqrt{m}$) as experimental subjects, and assumed $m=n$. Each component of $\mu$ and $\nu$ are pixel values of the images (greater than 0 and less than 10000). We used Euclidean distance to represent the distance between $i$ and $j$ ($c_{ij}=\sqrt{(i_1-j_1)^2+(i_2-j_2)^2}$, where $i_1, j_1, i_2, j_2$ are the first and second coordinate of $i$ and $j$ in the images). We first sampled two randomized images of the same size, and then applied interior point methods and simplex methods in MOSEK to solve the problem. There are three type of  image size in our testing data: $16\times 16$, $32\times 32$ and $64\times 64$. Results of running time are included in the following table:
+
+We have solved the previous linear programming problem in interior method and simplex method by calling MOSEK directly.
+ 
+In our numerical experiments, we used two random generated images $\mu$ and $\nu$ (with size $m \times n$, i.e., the indices of $\mu$ and $\nu$ are elements in $\cbra{ 0, 1, \cdots m} \times \cbra{ 0, 1, \cdots, n }$) as experimental subjects, and assumed $m=n$. The entries in $\mu$ and $\nu$ are randomly sampled from $\srbra{ 0, 1 }$ uniformly, and then $\mu$ and $\nu$ are renormalized to a sum of $10000$ respectively. We used Euclidean distance $c_{ij}=\sqrt{(i_1-j_1)^2+(i_2-j_2)^2}$ to represent the distance between two pixels $i = \rbra{ i_1, i_2 }$ and $j = \rbra{ j_1, j_2 }$. We then applied interior point methods and simplex methods in MOSEK to solve the optimal transport problem described in \eqref{Eq:StandardOptimalTransport}. Three sizes ($16\times 16$, $32\times 32$ and $64\times 64$) are tested. Results of running time are included in Table \ref{Tbl:RunningTime}.
+
 \begin{table}[h]
-\caption{Running Time (s) on Each Method}
+\caption{Running Time (\Si{\second}) on Each Method} \label{Tbl:RunningTime}
 \centering
-\begin{tabular}{c|cc}
+\begin{tabular}{|c|c|c|}
 	\hline
-	& Simplex Method & Interior Point Method\\
+Size	& Simplex Method & Interior Point Method\\
 	\hline
 	$16\times 16$ & 0.15 & 0.36\\
 	\hline
@@ -60,9 +66,10 @@ where $c_{ij}$ denote the distance between $i$ and $j$, and $\pi_{ij}$ are varia
 \end{tabular}
 \end{table}
 
-\textbf{ADD EFFICIENCY AND OTHER EVALUATIONS HERE.}
-
 \section{Further Research}
-\par In the further research of this topic, we would first do more numerical experiments on different experimental subjects, such as test objects given in DOTmark. We would also implement some other methods  to solve this problem, and in the mean time we would analyze the properties of these methods. Besides, we are going to read the paper \emph{DOTmark — A Benchmark for Discrete Optimal Transport} and \emph{Multiscale Strategies for Computing Optimal Transport}. And we would compare methods in these papers with existing methods and find out advantages and disadvantages about them. And if time permits, we would try some way to improve these methods.
-\par Since the forms of optimal transport problems are very special, it could be possible to find some specific methods for such problems. And the time and efficiency may be much better than solving linear programming problem directly. This is another way for our future research.
+
+In the further research of this topic, we will first do more numerical experiments on different experimental subjects, such as test objects given in DOTmark. We will also implement some other methods  to solve this problem, and in the meantime we will analyze the properties of these methods. Besides, we are going to read the paper \emph{DOTmark — A Benchmark for Discrete Optimal Transport} and \emph{Multiscale Strategies for Computing Optimal Transport}, and we will compare methods in these papers with existing methods and find out advantages and disadvantages of them. If time permits, we will try some way to improve these methods.
+
+Since optimal transport problems are formulated in a special way, it may be possible to find some specific methods for such problems, where efficiency may be much better than solving linear programming problems directly. This is another way for our future research.
+
 \end{document}

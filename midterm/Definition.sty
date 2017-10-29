@@ -7,7 +7,7 @@
 
 % This file cannot be typeset directly.
 
-\ProvidesPackage{Definition}[2017/10/25 Definition of lzh's Notes]
+\ProvidesPackage{Definition}[2017/10/30 Definition of lzh's Notes]
 
 \DeclareOption{cancel}{\def\lzhdef@cancel\relax}
 \DeclareOption{ulem}{\def\lzhdef@ulem\relax}
@@ -25,7 +25,8 @@
 \DeclareOption{longtable}{\def\lzhdef@longtable\relax}
 \DeclareOption{chemfig}{\def\lzhdef@chemfig\relax}
 \DeclareOption{tikz}{\def\lzhdef@tikz\relax}
-\ProcessOptions
+
+\ProcessOptions\relax
 
 \RequirePackage{etoolbox}
 \RequirePackage{amsmath}
