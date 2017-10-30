@@ -7,3 +7,6 @@
 *.synctex.gz
 *.thm
 *~
+*.DS_Store
+*.fls
+*.fdb_latexmk
