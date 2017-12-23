@@ -1,0 +1,27 @@
+# .gitignore
+.gitignore
+
+# Folders
+Raw/
+__pycache__/
+.ipynb_checkpoints/
+
+# LaTeX related files
+*.pdf
+*.aux
+*.log
+*.out
+*.pdf
+*.synctex.gz
+*.thm
+
+# Matplotlib related files
+*.pgf
+*.png
+
+# General backup files
+*~
+*.bak
+
+# Python source files
+*.py
