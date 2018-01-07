@@ -22,6 +22,7 @@ __pycache__/
 # General backup files
 *~
 *.bak
+*.sav
 
 # Python source files
 *.py

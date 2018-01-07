@@ -1,0 +1,263 @@
+% !TeX encoding = UTF-8 Unicode
+% !TeX program = LuaLaTeX
+% !TeX spellcheck = LaTeX
+
+% Author : lzh
+% Description : Convex Optimization Project Final Report
+
+\documentclass[english]{pkupaper}
+
+\usepackage[paper]{def}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newcommand{\cuniversity}{Peking University}
+\newcommand{\cthesisname}{Convex Optimization}
+\newcommand{\titlemark}{Convex Optimization Project Final Report}
+
+\begin{document}
+
+\DeclareRobustCommand{\authorthing}{%
+\begin{tabular}{ccc}%
+侯霁开\thanks{The authors are arranged lexicographically.} & 贾泽宇\thanksmark{1} & 李知含\thanksmark{1}\\%
+1600010681 & 1600010603 & 1600010653%
+\end{tabular}%
+}
+\title{\titlemark}
+\author{\authorthing}
+
+\maketitle
+
+\section{Introduction}
+
+Optimal transport (OT) problems are an important series of network flow problems, where the graph is restricted to be a bipartite graph and flow restrictions are freed. Cost relating to distance, solutions to these problems characterize the deformation between two probability distributions, and therefore the objective, called Wasserstein metric, is useful in many fields including medical image processing, geometry machine learning, computer vision, computer graphcis and even deep learning and neural networks. However, as a emerging research area, the main challenge for optimal transport problems is a lack of fast and efficient algorithm.
+
+In this report, we explain and report our implementation of several algorithms to optimal transport problems. We include the best algorithms and answers to given questions in this report, and leave some algorithms with defficiency in eithor efficiency or precision in the supplementary materials. The codes (with the whole repository) and raw datium are affliated with this report.
+
+\section{Problem statement}
+
+<Villani>
+
+Optimal transport problems can be categorized according to data types of the source and the sink. In this report, we only consider discrete optimal tranport, where the two distributions are weighted points.
+
+An optimal transport problem can be formulated as a linear program as
+\begin{equation} \label{Eq:StdLP}
+\begin{array}{ll}
+\mtx{minimize} & \sume{i}{1}{m}{\sume{j}{1}{n}{ c_{ i j } s_{ i j } }}, \\
+\mtx{subject to} & \sume{j}{1}{n}{s_{ i j }} = \mu_i, \crbr{ i = 1, 2, \cdots, m } \\
+& \sume{i}{1}{n}{s_{ i j }} = \nu_j, \crbr{ j = 1, 2, \cdots n } \\
+& s_{ i j } \ge 0, \crbr{ i = 1, 2, \cdots, m; j = 1, 2, \cdots, n }
+\end{array}
+\end{equation}
+where $c$ stands for the cost and $s$ stands for transportation variable, while $\mu$ and $\nu$ are restrictions. Note that we always suppose $ c \preceq 0 $, $ \mu \preceq 0 $ and $ \nu \preceq 0 $ implicitly. From realistic background, $c$ is always valued the squared Euclidean distance, and a unique solution is guaranteed. <Villani> Note that there are $ m n $ variables in this formulation, which leads to difficulty in computation.
+
+The dual problem of \eqref{Eq:StdLP} can be written as 
+\begin{equation} \label{Eq:Dual}
+\begin{array}{ll}
+\mtx{maximize} & \sume{i}{1}{m}{ \mu_i \lambda_i } + \sume{j}{1}{n}{ \nu_j \eta_j }, \\
+\mtx{subject to} & c_{ i j } - \lambda_i - \eta_j \ge 0. \crbr{ i = 1, 2, \cdots, m; j = 1, 2, \cdots, n }
+\end{array}
+\end{equation}
+Although this formulation has only $ m + n $ variables, there are still challenges including the recovery of $s$ from $\mu$ and $\nu$.
+
+\section{Calling solvers}
+
+We direcly solve optimal transport problems by directly calling solvers MOSEK and gurobi. For each solver, simplex method for the primal problem, simplex method for the dual problem and the interior point method are all tested. The codes are implemented in \verb"solver_mosek" and \verb"solver_gurobi".
+
+Note that simplex methods are a series of methods specialized for linear programs, and therefore simplex methods are generally faster and more precise than interior point methods. However, because of special structure of this problem (the number of constraints are rather small), the performance of simlex methods and the interior point methods are rather close. More information can be find in Section ().
+
+\section{First-order methods} \label{Sec:FOM}
+
+We first implement an alternative direction method of multipliers (ADMM) according to a reformulation of \eqref{Eq:StdLP} as
+\begin{equation} \label{Eq:ADMMPrimal}
+\begin{array}{ll}
+\mtx{minimize} & \sume{i}{1}{m}{\sume{j}{1}{n}{ c_{ i j } s_{ i j } }} + \iota_+ \rbr{\widetilde{s}}, \\
+\mtx{subject to} & \sume{j}{1}{n}{s_{ i j }} = \mu_i, \crbr{ i = 1, 2, \cdots, m } \\
+& \sume{i}{1}{n}{s_{ i j }} = \nu_j, \crbr{ j = 1, 2, \cdots n } \\
+& s = \widetilde{s},
+\end{array}
+\end{equation}
+where $\iota_+$ are indicator of $ \Rset^{ m \times n }_+ $. The augmented Lagragian is
+\begin{equation}
+\begin{aligned}
+L_{\rho} \rbr{ s, \widetilde{s}, \lambda, \eta, e } &= \sume{i}{1}{n}{\sume{j}{1}{m}{ c_{ i j } s_{ i j } }} + \iota_+ \rbr{\widetilde{s}} \\
+&+ \sume{i}{1}{n}{ \lambda_i \rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} } } + \sume{j}{1}{m}{ \eta_j \rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} } } + \sume{i}{1}{n}{\sume{j}{1}{m}{ e_{ i j } \rbr{ s_{ i j } - \widetilde{s}_{ i j } } }} \\
+&+ \frac{\rho}{2} \sume{i}{1}{n}{\rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{j}{1}{m}{\rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{i}{1}{n}{\sume{j}{1}{m}{\rbr{ s_{ i j } - \widetilde{s}_{ i j } }^2}}. \\
+\end{aligned}
+\end{equation}
+One of the minimization steps can be realized explicitly by
+\begin{gather}
+\argmin_{\widetilde{s}} L_{\rho} \rbr{ s, \widetilde{s}, \lambda, \eta, e } = p_+ \rbr{ s - \frac{1}{\rho} e }
+\end{gather}
+where $p_+$ is the projection to $ \Rset^{ m \times n }_+ $, and another can be derived from
+\begin{gather} \label{Eq:LinSys}
+\sume{k}{1}{n}{s_{ i k }} + \sume{k}{1}{m}{s_{ k j }} + s_{ i j } = \frac{1}{\rho} \rbr{ e_{ i j } + \lambda_i + \eta_j - c_{ i j } } + \mu_i + \nu_j + \widetilde{s},
+\end{gather}
+which can be solved directly by its special structure. The algorithm is shown in Algorithm \label{Alg:ADMMPrimal}.
+
+\begin{algorithm}
+\caption{ADMM for the primal problem}
+\label{Alg:ADMMPrimal}
+\begin{algorithmic}
+\REQUIRE $\mu$, $\nu$, $c$, step size $\rho$, scale factor $\alpha$
+\STATE $ t \slar 0 $
+\STATE $ s^{\rbr{t}}, \widetilde{s}^{\rbr{t}}, e^{\rbr{t}} \slar 0 $, $ \lambda^{\rbr{t}} \slar 0 $, $ \eta^{\rbr{t}} \slar 0 $
+\WHILE{not converges}
+\STATE $ s^{\rbr{ t + 1 }} \slar \argmin_s L_{\rho} \rbr{ s, \widetilde{s}^{\rbr{s}}, \lambda^{\rbr{s}}, \eta^{\rbr{s}}, e^{\rbr{s}} } $
+\STATE $ \widetilde{s}^{\rbr{ t + 1 }} \slar \argmin_{\widetilde{s}} L_{\rho} \rbr{ s^{\rbr{ t + 1 }}, \widetilde{s}, \lambda^{\rbr{s}}, \eta^{\rbr{s}}, e^{\rbr{s}} } $
+\STATE $ \lambda^{\rbr{ t + 1 }}_i \slar \lambda^{\rbr{t}} + \alpha \rho \rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} } $
+\STATE $ \eta^{\rbr{ t + 1 }}_j \slar \lambda^{\rbr{t}} + \alpha \rho \rbr{ \nu_i - \sume{i}{1}{n}{s_{ i j }} } $
+\STATE $ e^{\rbr{ t + 1 }} \slar e^{\rbr{t}} + \alpha \rho \rbr{ s - \widetilde{s} } $
+\STATE $ t \slar t + 1 $
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+We then implement an operator splitting proximal gradient method using penalty functions. The objective function can be written as $ f \rbr{s} + g \rbr{s} $, where
+\begin{gather}
+f \rbr{s} = \sume{i}{1}{n}{\sume{j}{1}{m}{ c_{ i j } s_{ i j } }} + \pi_1 \sume{i}{1}{n}{\rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} }^2} + \pi_2 \sume{j}{1}{m}{\rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} }^2} \\
+g \rbr{s} = \pi_0 \sume{i}{1}{n}{\sume{j}{1}{m}{ p_- \rbr{s_{ i j }} }}.
+\end{gather}
+Note that $ \opprox_{ l f } $ can be derived by solving a linear system with special structure (similar to \eqref{Eq:LinSys}), and $ \opprox_{ l g } $ can be achieved by shrinking the negative part, and therefore this algorithm can be implemented as Algorithm \ref{Alg:GradPrimal}. Furthermore, we use Nesterov momentum in this algorithm to boost its convergence, because part of the penalty terms are quadratic.
+
+\begin{algorithm}
+\caption{Operator splitting fast proximal gradient method using penalty functions}
+\label{Alg:GradPrimal}
+\begin{algorithmic}
+\REQUIRE $\mu$, $\nu$, $c$, step size $l$, penalty factors $\pi_1$, $\pi_2$, $\pi_0$.
+\STATE $ t \slar 0 $
+\STATE $ s^{\rbr{-1}}, s^{\rbr{t}} \slar 0 $
+\WHILE{not converges}
+\STATE $ s' = s^{\rbr{t}} + \frac{ t - 1 }{ t + 2 } \rbr{ s^{\rbr{t}} - s^{\rbr{ t - 1 }} } $
+\STATE $ s^{\rbr{ t + 1 }} \slar \opprox_{ l g } \rbr{ \opprox_{ l f } \rbr{s'} } $
+\STATE $ t \slar t + 1 $
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+According to some numerical experiments, we have found that Algorithm \ref{Alg:ADMMPrimal} suffers from difficult satisfication of constraints, while Algorithm \ref{Alg:GradPrimal} suffers from very low convergence. Inspired by this phenomenon, we propose a new Algorithm \textbf{(Algorithm \hypertarget{EAlg:12}{1+2})} by combing these two algorithms: we first perform Algorithm \ref{Alg:ADMMPrimal} and stop it when the constraints are not satisfied very well, and then perform Algorithm \ref{Alg:GradPrimal}. Experiments tell Algorithm \hyperlink{EAlg:12}{1+2} have better efficiency and precision than the two original algorithms.
+
+\newpage
+\cleanthanks
+
+\DeclareRobustCommand{\authorthing}{%
+\begin{tabular}{ccc}%
+侯霁开 & 贾泽宇 & 李知含\\%
+1600010681 & 1600010603 & 1600010653%
+\end{tabular}%
+}
+\title{Supplementary Materials}
+\author{\authorthing}
+
+\maketitle
+
+\section{Other first-order methods}
+
+Besides three algorithms mentioned in Section \ref{Sec:FOM}, we have also tried some other first-order methods.
+
+We have implemented an alternative direction method of multipliers (ADMM) to the dual problem according to a reformulation of \eqref{Eq:Dual}
+\begin{equation}
+\begin{array}{ll}
+\mtx{minimize} & -\sume{i}{1}{m}{ \mu_i \lambda_i } - \sume{j}{1}{n}{ \nu_j \eta_j } + \iota_+ \rbr{e}, \\
+\mtx{subject to} & c_{ i j } - \lambda_i - \eta_j - e_{ i j } = 0. \crbr{ i = 1, 2, \cdots, m; j = 1, 2, \cdots, n }.
+\end{array}
+\end{equation}
+The augmented Lagragian is
+\begin{equation}
+\begin{aligned}
+L_{\rho} \rbr{ \lambda, \mu, e, d } &= -\sume{i}{1}{m}{ \mu_i \lambda_i } - \sume{j}{1}{n}{ \nu_j \eta_j } + \iota_+ \rbr{e} \\
+&+ \sume{i}{1}{m}{\sume{j}{1}{n}{ d_{ i j } \rbr{ c_{ i j } - \lambda_i - \eta_j - e_{ i j } } }} \\
+&+ \frac{\rho}{2} \sume{i}{1}{m}{\sume{j}{1}{n}{\rbr{ c_{ i j } - \lambda_i - \eta_j - e_{ i j } }^2}}.
+\end{aligned}
+\end{equation}
+The minimization of $e$ can be done directly by solving for zero gradient and projection, while the minimization of $\lambda$ and $\mu$ can be done by solving for zero gradient. (Actually this system has one degree of freedom, which can be fixed by letting $ \sume{j}{1}{n}{\eta_j} = 0 $ and this does not influence the result)  The algorithm is listed as Algorithm \ref{Alg:ADMMDual}. Solution $s$ can be recovered by $ s = -d $ from KKT conditions.
+
+\begin{algorithm}
+\caption{ADMM for the dual problem}
+\label{Alg:ADMMDual}
+\begin{algorithmic}
+\REQUIRE $\mu$, $\nu$, $c$, step size $\rho$, scale factor $\alpha$
+\STATE $ t \slar 0 $
+\STATE $ \lambda^{\rbr{t}} \slar 0 $, $ \eta^{\rbr{t}} \slar 0 $, $ s^{\rbr{t}}, e^{\rbr{t}}, d^{\rbr{t}} \slar 0 $
+\WHILE{not converges}
+\STATE $ \lambda^{\rbr{ t + 1 }}, \eta^{\rbr{ t + 1 }} = \argmin_{ \lambda, \eta } L_{\rho} \rbr{ \lambda, \mu, e^{\rbr{t}}, d^{\rbr{t}} } $
+\STATE $ e^{\rbr{ t + 1 }} = \argmin_e L_{\rho} \rbr{ \lambda^{\rbr{ t + 1 }}, \eta^{\rbr{ t + 1 }}, e, d^{\rbr{t}} } $
+\STATE $ d^{\rbr{ t + 1 }}_{ i, j } \slar d^{\rbr{t}}_{ i j } + \alpha \rho \rbr{ c_{ i j } - \lambda_i - \eta_j - e_{ i j } } $
+\STATE $ e^{\rbr{ t + 1 }} \slar e^{\rbr{t}} + \alpha \rho \rbr{ s - \widetilde{s} } $
+\STATE $ t \slar t + 1 $
+\ENDWHILE
+\STATE $ s^{\rbr{t}} \slar -d^{\rbr{t}} $
+\end{algorithmic}
+\end{algorithm}
+
+However, because this algorithm introduces more variables ($ 3 m n + m + n $) and the constraints are not introduced explicitly, therefore it sufferes from heavy computation and slow convergence.
+
+We have also tried augmented Lagragian method (ALM) to the primal problem directly. The augmented Lagragian is
+\begin{equation}
+\begin{aligned}
+L_{\rho} \rbr{ s, \lambda, \eta } &= \sume{i}{1}{n}{\sume{j}{1}{m}{ c_{ i j } s_{ i j } }} + \iota_+ \rbr{s} \\
+&+ \sume{i}{1}{n}{ \lambda_i \rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} } } + \sume{j}{1}{m}{ \eta_j \rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} } } \\
+&+ \frac{\rho}{2} \sume{i}{1}{n}{\rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{j}{1}{m}{\rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} }^2}. \\
+\end{aligned}
+\end{equation}
+To minimize $s$, we adopt a projection gradient step to perform a approximate minimization. The algorithm is listed as Algorithm \ref{Alg:ApproxALM}.
+
+\begin{algorithm}
+\caption{Approximate ALM for the primal problem}
+\label{Alg:ApproxALM}
+\begin{algorithmic}
+\REQUIRE $\mu$, $\nu$, $c$, step size $\rho$, scale factor $\alpha$, gradient step size $l$
+\STATE $ t \slar 0 $
+\STATE $ s^{\rbr{t}} \slar 0 $, $ \lambda^{\rbr{t}} \slar 0 $, $ \eta^{\rbr{t}} \slar 0 $
+\WHILE{not converges}
+\STATE $ s' = s^{\rbr{t}} - l \nabla_s L_{\rho} \rbr{ s^{\rbr{t}}, \lambda^{\rbr{t}}, \eta^{\rbr{t}} } $
+\STATE $ s^{\rbr{ t + 1 }} = \iota_+ \rbr{s'} $
+\STATE $ \lambda^{\rbr{ t + 1 }}_i \slar \lambda^{\rbr{t}} + \alpha \rho \rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} } $
+\STATE $ \eta^{\rbr{ t + 1 }}_j \slar \lambda^{\rbr{t}} + \alpha \rho \rbr{ \nu_i - \sume{i}{1}{n}{s_{ i j }} } $
+\STATE $ t \slar t + 1 $
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+This algorithm suffers from the approximation step heavily, which makes the error of $\mu$ and $\nu$ hard to reach $10^{-4}$.
+
+\section{Entropy regularized methods}
+
+Entropy regularization is an important method in solving large scale optimization problems, which make the optimization easier and also leads to some fast algorithms. The regularization term is
+\begin{equation}
+R \rbr{s} = \sume{i}{1}{n}{\sume{j}{1}{m}{ s_{ i j } \rbr{ \ln s_{ i j } - 1 } }}.
+\end{equation}
+When the regularization coefficient $ \gamma \srar +\infty $, the solution $ s^{\star} \srar \nu^{\rmut} \mu $; and when $ \gamma \srar 0 $, $s^{\star}$ tends to the real solution. <1412.5154.pdf>
+
+<Figures>
+
+Using entropy regularization, we may modify Algorithm \ref{Alg:ADMMPrimal} to a entropy regularized version \textbf{(Algorithm \hypertarget{EAlg:1R}{1R})}. The augmented Lagragian is
+\begin{equation}
+\begin{aligned}
+L_{ \rho \gamma } \rbr{ s, \widetilde{s}, \lambda, \eta, e } &= \sume{i}{1}{n}{\sume{j}{1}{m}{ c_{ i j } s_{ i j } }} + \iota_+ \rbr{\widetilde{s}} + \gamma R \rbr{ \widetilde{s} + \delta } \\
+&+ \sume{i}{1}{n}{ \lambda_i \rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} } } + \sume{j}{1}{m}{ \eta_j \rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} } } + \sume{i}{1}{n}{\sume{j}{1}{m}{ e_{ i j } \rbr{ s_{ i j } - \widetilde{s}_{ i j } } }} \\
+&+ \frac{\rho}{2} \sume{i}{1}{n}{\rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{j}{1}{m}{\rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{i}{1}{n}{\sume{j}{1}{m}{\rbr{ s_{ i j } - \widetilde{s}_{ i j } }^2}}, \\
+\end{aligned}
+\end{equation}
+where $\delta$ is a small number to increase numerical stability. (Valued $10^{-6}$ in numerical experiments) However, this algorithm is still rather slow because ADMM is used.
+
+We have also implemented IPFP / Sinkhorn algorithm in <1412.5154.pdf>. The algorithm is listed as Algorithm \ref{Alg:IPFP}. However, the defficiency of this algorithm lies in numerical instability: the $ \exp \rbr{ -c / \gamma } $ step is rather dangerous for small $\gamma$, which makes it impossible to reach a close solution.
+
+\begin{algorithm}
+\caption{Sinkhorn algorithm}
+\label{Alg:IPFP}
+\begin{algorithmic}
+\REQUIRE $\mu$, $\nu$, $c$, $\gamma$
+\STATE $ \xi \slar \exp \rbr{ -c / \gamma } $
+\STATE $ t \slar 0 $
+\STATE $ v^{\rbr{t}} \slar 1 $
+\WHILE{not converges}
+\STATE $ u^{\rbr{ t + 1 }}_i \slar \mu_i / \rbr{ \xi v^{\rbr{t}} }_i $
+\STATE $ v^{\rbr{ t + 1 }}_j \slar \nu_j / \rbr{ \xi^{\rmut} u^{\rbr{ t + 1 }} }_j $
+\STATE $ t \slar t + 1 $
+\ENDWHILE
+$s^{\rbr{t}}_{ i j } = u^{\rbr{t}}_i \xi_{ i j } v^{\rbr{t}}_j $
+\end{algorithmic}
+\end{algorithm}
+
+	\end{document}

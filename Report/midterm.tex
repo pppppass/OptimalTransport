@@ -2,14 +2,12 @@
 % !TeX program = LuaLaTeX
 % !TeX spellcheck = LaTeX
 
-% Author : lzh
+% Author : jzy (modified by pppppass, hjk)
 % Description : Convex Optimization Project Midterm Report
 
-\documentclass[english]{PKUPaper}
+\documentclass[english]{pkupaper}
 
-\usepackage[si, paper]{Definition}
-
-\ctexset{today=old}
+\usepackage[si, paper]{def}
 
 \newcommand{\cuniversity}{Peking University}
 \newcommand{\cthesisname}{Convex Optimization}
@@ -48,7 +46,7 @@ where $c_{ij}$ denote the distance between $i$ and $j$, and $\pi_{ij}$ are varia
 
 We have solved the previous linear programming problem in interior method and simplex method by calling MOSEK directly.
  
-In our numerical experiments, we used two random generated images $\mu$ and $\nu$ (with size $m \times n$, i.e., the indices of $\mu$ and $\nu$ are elements in $\cbra{ 0, 1, \cdots m} \times \cbra{ 0, 1, \cdots, n }$) as experimental subjects, and assumed $m=n$. The entries in $\mu$ and $\nu$ are randomly sampled from $\srbra{ 0, 1 }$ uniformly, and then $\mu$ and $\nu$ are renormalized to a sum of $10000$ respectively. We used Euclidean distance $c_{ij}=\sqrt{(i_1-j_1)^2+(i_2-j_2)^2}$ to represent the distance between two pixels $i = \rbra{ i_1, i_2 }$ and $j = \rbra{ j_1, j_2 }$. We then applied interior point methods and simplex methods in MOSEK to solve the optimal transport problem described in \eqref{Eq:StandardOptimalTransport}. Three sizes ($16\times 16$, $32\times 32$ and $64\times 64$) are tested. Results of running time are included in Table \ref{Tbl:RunningTime}.
+In our numerical experiments, we used two random generated images $\mu$ and $\nu$ (with size $m \times n$, i.e., the indices of $\mu$ and $\nu$ are elements in $\cbr{ 0, 1, \cdots m} \times \cbr{ 0, 1, \cdots, n }$) as experimental subjects, and assumed $m=n$. The entries in $\mu$ and $\nu$ are randomly sampled from $\srbr{ 0, 1 }$ uniformly, and then $\mu$ and $\nu$ are renormalized to a sum of $10000$ respectively. We used Euclidean distance $c_{ij}=\sqrt{(i_1-j_1)^2+(i_2-j_2)^2}$ to represent the distance between two pixels $i = \rbr{ i_1, i_2 }$ and $j = \rbr{ j_1, j_2 }$. We then applied interior point methods and simplex methods in MOSEK to solve the optimal transport problem described in \eqref{Eq:StandardOptimalTransport}. Three sizes ($16\times 16$, $32\times 32$ and $64\times 64$) are tested. Results of running time are included in Table \ref{Tbl:RunningTime}.
 
 \begin{table}[h]
 \caption{Running Time (\Si{\second}) on Each Method} \label{Tbl:RunningTime}
