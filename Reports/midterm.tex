@@ -15,13 +15,15 @@
 
 \counterwithout{equation}{part}
 
-\title{\titlemark}
-\author{%
-	\begin{tabular}{ccc}
-侯霁开 & 贾泽宇 & 李知含 \\
-1600010681 & 1600010603 & 1600010653
-	\end{tabular}%
+\DeclareRobustCommand{\authoring}{%
+\begin{tabular}{ccc}%
+侯霁开 & 贾泽宇 & 李知含 \\%
+1600010681 & 1600010603 & 1600010653%
+\end{tabular}%
 }
+
+\title{\titlemark}
+\author{\authoring}
 
 \begin{document}
 

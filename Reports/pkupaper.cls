@@ -27,7 +27,7 @@
 
 % Identification
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{pkupaper}[2017/01/07 PKU-style paper class]
+\ProvidesClass{pkupaper}[2017/01/08 PKU-style paper class]
 
 % Declaration of options
 \DeclareOption{english}{\def\pkupaper@english{\relax}}
@@ -56,6 +56,7 @@
 \RequirePackage{titling}
 \RequirePackage{hyperref}
 \RequirePackage{enumitem}
+\RequirePackage[backend=biber]{biblatex}
 
 % Footnote circles
 \newcommand*\pkupaper@int@circled[1]{%
