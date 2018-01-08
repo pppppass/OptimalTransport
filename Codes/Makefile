@@ -140,6 +140,18 @@ overall_image.py: overall_image.ipynb generate_all
 overall_image_test: overall_image.py
 	./overall_image.py
 
+overall_supp.py: overall_supp.ipynb generate_all
+	./convert.py overall_supp.ipynb
+
+overall_supp_test: overall_supp.py
+	./overall_supp.py
+
+figures.py: figures.ipynb generate_all
+	./convert.py figures.ipynb
+
+figures_test: figures.py
+	./figures.py
+
 clean_res:
 	rm *.pgf
 	rm *.png
@@ -154,5 +166,5 @@ clean: clean_res clean_py
 .PHONY : clean
 
 sync:
-	cp  convert.ipynb font.ipynb handler.ipynb dataset.ipynb stats.ipynb solver_mosek.ipynb solver_gurobi.ipynb first_ADMM_primal.ipynb first_ADMM_dual.ipynb first_ALM_primal.ipynb first_grad_primal.ipynb discrete_transportation_simplex.ipynb discrete_transportation_simplex_networkx.ipynb multiscale_image_mosek.ipynb multiscale_image_func.ipynb multiscale_point_mosek.ipynb entropy_ADMM_primal.ipynb entropy_sinkhorn.ipynb overall_point.ipynb overall_image.ipynb overall_extra.ipynb Makefile environment.yml ../Codes
+	cp  convert.ipynb font.ipynb handler.ipynb dataset.ipynb stats.ipynb solver_mosek.ipynb solver_gurobi.ipynb first_ADMM_primal.ipynb first_ADMM_dual.ipynb first_ALM_primal.ipynb first_grad_primal.ipynb discrete_transportation_simplex.ipynb discrete_transportation_simplex_networkx.ipynb multiscale_image_mosek.ipynb multiscale_image_func.ipynb multiscale_point_mosek.ipynb entropy_ADMM_primal.ipynb entropy_sinkhorn.ipynb overall_point.ipynb overall_image.ipynb overall_extra.ipynb overall_supp.ipynb figures.ipynb Makefile environment.yml ../Codes
 .PHONY : sync
