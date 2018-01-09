@@ -253,7 +253,7 @@ During our implementation, we find that the description of this method in \paren
 
 \subsection{Discussion}
 
-The algorithm is listed as Algorithm \ref{Alg:TS} and implemented in \verb"discrete_transportation_simplex.ipynb".
+The algorithm is listed as Algorithm \ref{Alg:TS}. The codes of implementation in Python is included in \verb"discrete_transportation_simplex.ipynb".
 
 \begin{algorithm}
 	\caption{Transportation simplex method} \label{Alg:TS}
@@ -661,7 +661,7 @@ This algorithm suffers from the approximation step heavily, which makes the erro
 
 \section{Other implementation of transportation simplex method}
 
-As mentioned in Section \ref{Sec:TS}, all the algorithms are implemented in Python, which introduces a huge disadvantages for the transportation simplex method. This is because the dynamic feature of Python, which results in slow discrete operations, especially graph algorithms. Therefore, we empoly the graph package NetworkX in order to realize some graph algorithm, and we call this implementation \textbf{Algorithm \hypertarget{EAlg:3N}{3N}}, whose code is in \verb"discrete_transportation_simplex_networkx.ipynb". However, this algorithm is even slower than Algorithm \ref{Alg:TS}, this is because the package does not include BFS algorithms, which is the key to the whole algorithm.
+As mentioned in Section \ref{Sec:TS}, all the algorithms are implemented in Python, which introduces a huge disadvantages for the transportation simplex method. This is because the dynamic feature of Python, which results in slow discrete operations, especially graph algorithms. Therefore, we empoly the package NetworkX in order to realize graph algorithms, and we call this implementation \textbf{Algorithm \hypertarget{EAlg:3N}{3N}}, with codes in \verb"discrete_transportation_simplex_networkx.ipynb". However, this algorithm is even slower than Algorithm \ref{Alg:TS}, this is because the package does not include BFS algorithms, which is the key to the whole algorithm.
 
 \section{Multiscale Strategies with ADMM}
 
@@ -675,7 +675,7 @@ Notice that many variables with upper bound $0$ should be $0$ in the optimal sol
 
 We save the optimal plan in a matrix because we want to use the former ADMM algorithm, so the memory cost of the multiscale strategy is not reduced. However, we have seen in the experiment result that the time cost of the multiscale algorithm are lower.
 
-This algorithm with ADMM is listed as Algorithm \ref{Alg:MSADMM}, and implemented in \verb"multiscale_image_func.ipynb".
+This algorithm with ADMM is listed as Algorithm \ref{Alg:MSADMM}. Its implementation is included in the file \verb"multiscale_image_func.ipynb".
 
 \begin{algorithm} 
 \caption{Multiscale strategy with ADMM} \label{Alg:MSADMM}
