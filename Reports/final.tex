@@ -33,13 +33,15 @@
 
 \maketitle
 
-\section{Introduction}
+\section{Introduction} \label{Sec:Intro}
 
 Optimal transport (OT) problems are an important series of problems considering the minimal cost of transportation, receiving increasing attention from the community of applied mathematics. The discrete form of optimal trnapsort problems fall into a kind of network flow problems, where the graph is restricted to be a bipartite graph and flow restrictions are freed. Cost related to a specific metric, solutions to these problems characterize the deformation between two probability distributions, and therefore the objective, called Wasserstein metric, is useful in many fields including medical image processing (feature identification), geometric learning (registration and segmentation), machine learning (feature extraction and alignment), computer vision (classification), computer graphics (blend between shapes) and even deep learning (generative adversarial networks). However, as a emerging research area, the main challenge for optimal transport problems is a lack of fast and efficient algorithm. Although there are several discrete algorithms \parencite{Bertsekas1992} \parencite{Schrieber2017} for these problems, the vast space of admissible transportation plans introduces great difficulty to computation.
 
 In this report, we explain and report our implementation of several algorithms to discrete optimal transport problems. We include the best algorithms and answers to given questions in this report, and leave some algorithms with deficiency in either efficiency or precision in the supplementary materials. The codes and raw datium, together with the Git repository, are affliated with this report. Please refer to \verb"Readme.md" for more details about the repository.
 
-\section{Problem statement}
+We first introduces optimal transport problems and the whole project in Section \ref{Sec:Intro}, and then clarify the statement and formulation in Section \ref{Sec:ProSta}. Section \ref{Sec:Sol}, \ref{Sec:FOM}, \ref{Sec:TS}, \ref{Sec:MS} talks about solvers, first-order methods, transportation simplex method, multiscale methods respectively, which answers \textbf{Question 1}, \textbf{2}, \textbf{3} and \textbf{4} in the question list. Section \ref{Sec:NumRes} contains numerical results, and Section \ref{Sec:Con} and \ref{Sec:Ack} are for conclusion and acknowledgement respectively.
+
+\section{Problem statement} \label{Sec:ProSta}
 
 The standard formulation of optimal transport are derived from couplings. \parencite{Villani2009} That is, let $ \rbr{ \mathcal{X}, \mu } $ and $ \rbr{ \mathcal{Y}, \nu } $ be two probability spaces, and a probability distribution $\pi$ on $ \mathcal{X} \times \mathcal{Y} $ is called \emph{coupling} if $ \opproj_{\mathcal{X}} \rbr{\pi} = \mu $ and $ \opproj_{\mathcal{Y}} \rbr{\pi} \nu $. An optimal transport between $ \rbr{ \mathcal{X}, \mu } $ and $ \rbr{ \mathcal{Y}, \nu } $, or an optimal coupling, is a coupling minimize
 \begin{equation}
@@ -75,9 +77,9 @@ Figure \ref{Fig:EgDisOT} shows an example of discrete optimal transport, where t
 \caption{An example of discrete optimal transport} \label{Fig:EgDisOT}
 \end{figure}
 
-\section{Calling solvers}
+\section{Calling solvers} \label{Sec:Sol}
 
-According to \textbf{Question 1}, we fist solve discrete optimal transport problems by directly calling solvers MOSEK and gurobi.
+According to \textbf{Question 1}, we fist solve discrete optimal transport problems by directly calling solvers MOSEK and gurobi. The codes are implemented in \verb"sovler_mosek.ipynb" and \verb"solver_gurobi.ipynb".
 
 Note that simplex methods are a series of methods specialized for linear programs, and therefore simplex methods are generally faster and more precise than interior point methods. However, because of special structure of this problem (the number of constraints are always fewer than that of variables), the performance of simlex methods and the interior point methods are rather close. More information can be find in Section \ref{Sec:NumRes}.
 
@@ -116,7 +118,7 @@ which can be solved directly by its special structure. To be exact, the solution
 \begin{equation}
 s_{ i j } = r_{ i j } - \frac{1}{ n + 1 } \sume{k}{1}{n}{\rbr{ r_{ i k } - \frac{1}{ m + n + 1 } \sume{l}{1}{m}{r_{ l k }} }} - \frac{1}{ m + 1 } \sume{k}{1}{m}{\rbr{ r_{ k j } - \frac{1}{ m + n + 1 } \sume{l}{1}{n}{r_{ k l }} }}.
 \end{equation}
-The algorithm is shown in Algorithm \ref{Alg:ADMMPrimal}.
+The algorithm is shown in Algorithm \ref{Alg:ADMMPrimal}. This algorithm is implemented in \verb"first_primal_ADMM.ipynb".
 
 \begin{algorithm}
 \caption{ADMM for the primal problem}
@@ -156,7 +158,7 @@ and $ \opprox_{ t f } $ can be derived by  a linear system with special structur
 &- \frac{ \pi_2 t }{ \pi_2 t m + 1 } \sume{k}{1}{m}{\rbr{ r_{ k j } - \frac{ \pi_1 t }{ \pi_1 t m + \pi_2 t n + 1 } \sume{l}{1}{n}{r_{ k l }} }}
 \end{split}
 \end{equation}
-to be exact. We then adopt Peaceman-Rachford splitting scheme to solve this problem. Furthermore, we use Nesterov momentum in this algorithm to boost its convergence, because part of the penalty terms are quadratic. This algorithm is listed as Algorithm \ref{Alg:GradPrimal}.
+to be exact. We then adopt Peaceman-Rachford splitting scheme to solve this problem. Furthermore, we use Nesterov momentum in this algorithm to boost its convergence, because part of the penalty terms are quadratic. This algorithm is listed as Algorithm \ref{Alg:GradPrimal}, and implemented in \verb"first_grad_primal.ipynb".
 
 \begin{algorithm}
 \caption{Operator splitting fast proximal gradient method using penalty functions}
@@ -175,7 +177,7 @@ to be exact. We then adopt Peaceman-Rachford splitting scheme to solve this prob
 
 \subsection{Proposed combined algorithm}
 
-According to some numerical experiments, we have found that Algorithm \ref{Alg:ADMMPrimal} suffers from difficult satisfication of constraints, while Algorithm \ref{Alg:GradPrimal} suffers from slow and hard convergence. Figure \ref{Fig:Loss} shows the evolution of error of $\mu$ and $\nu$, (see Section \ref{Sec:NumRes} for details) where the error fails in reaching $10^{-4}$ after about 10000 iterations in \SI{44}{\second}, while MOSEK solver only takes about \SI{1}{\second}. The deficiency of Peaceman-rachford splitting scheme may account for the hard convergence of Algorithm \ref{Alg:GradPrimal}.
+According to some numerical experiments, we have found that Algorithm \ref{Alg:ADMMPrimal} suffers from difficult satisfication of constraints, while Algorithm \ref{Alg:GradPrimal} suffers from slow and hard convergence. Figure \ref{Fig:Loss} shows the evolution of error of $\mu$ and $\nu$, (see Section \ref{Sec:NumRes} for details) where the error fails in reaching $10^{-4}$ after about 10000 iterations in \SI{44}{\second}, while MOSEK solver only takes about \SI{1}{\second}. The deficiency of Peaceman-rachford splitting scheme may account for the hard convergence of Algorithm \ref{Alg:GradPrimal}. This algorithm is implemented in \verb"first_grad_primal.ipynb".
 
 \begin{figure}
 \centering \scalebox{0.65}{\input{Figure-0001-20180109-010724-468038.pgf}} 
@@ -251,7 +253,7 @@ During our implementation, we find that the description of this method in \paren
 
 \subsection{Discussion}
 
-The algorithm is listed as Algorithm \ref{Alg:TS}.
+The algorithm is listed as Algorithm \ref{Alg:TS} and implemented in \verb"discrete_transportation_simplex.ipynb".
 
 \begin{algorithm}
 	\caption{Transportation simplex method} \label{Alg:TS}
@@ -323,7 +325,7 @@ As mentioned before, one of the significant advantages of multiscale strategy is
 
 We implement the algorithm and test it on point clouds and images. Approaches to coarsening on these two data sets are be slightly different. We implement coarsening on images directly by downsampling, that is, combine $k\times k$ pixels into one pixel. In practical experiments, we choose $k =2$.
 
-There are various ways of coarsening on cloud points, among which are two common ways. The first is to apply K-means algorithm to the point cloud, then combine the points in the same cluster. However, we infer that using K-means here is unreasonable. In most data sets, there are no explicit cluster structure, so the output of K-means may be heavily relevant on the choice of initial point, which indicates that K-means is not capable for this task.
+There are various ways of coarsening on cloud points, among which are two common ways. The first is to apply $K$-means algorithm to the point cloud, then combine the points in the same cluster. However, we infer that using $K$-means here is unreasonable. In most data sets, there are no explicit cluster structure, so the output of $K$-means may be heavily relevant on the choice of initial point, which indicates that $K$-means is not capable for this task.
 
 Conditioned this, we choose the second way that we simply divide the points by a grid. We replace the point cloud in a coordinate grid with size $N\times N$, and combine the points in the same square. That's the first step. Next, we can divide the point combined with a new gird. Noticed that we get a $N\times N$ ``dot matrix'' after the first step, we can use either the coarsening method of image to deal with the matrix or division. In both methods, we choose a point in each square with shortest distance to the barycenter of points lying the square as a representative point. We update a new cost matrix $c_j$ for the squares using the cost between the representative points. Figure \ref{Fig:Div} shows an example of such sub-sampling.
 
@@ -362,7 +364,7 @@ Actually using both propagating and refining are not necessary in all situation.
 
 \subsection{Discussion}
 
-The multiscale method is listed in Algorithm \ref{Alg:MS}.
+The multiscale method is listed in Algorithm \ref{Alg:MS}. Different versions of this algorithm are implemented in \verb"multiscale_image_mosek.ipynb" and \verb"multiscale_point_mosek.ipynb" respectively.
 
 \begin{algorithm}
 \caption{Multiscale strategy for optimal transport problems} \label{Alg:MS}
@@ -379,7 +381,7 @@ The multiscale method is listed in Algorithm \ref{Alg:MS}.
 \end{algorithmic}
 \end{algorithm}
 
-Note that the fact that we add additional constraints to the original optimal transport problem, the subproblem we facing now is not a optimal transport problem . Furthermore, we only consider the transport on some paths so the matrix structure have been destroyed. So the solution can't be easily got by the former algorithm for optimal transport problem. In the original paper, the multiscale strategy is implemented using MOSEK and CPLEX. We implement multiscale strategy with MOSEK.
+Note that the fact that we add additional constraints to the original optimal transport problem, the subproblem we facing now is not a optimal transport problem . Furthermore, we only consider the transport on some paths so the matrix structure have been destroyed. So the solution can't be easily got by the former algorithm for optimal transport problem. In the original paper, the multiscale strategy is implemented using MOSEK and CPLEX. We implement multiscale strategy with MOSEK. In real tests, primal simplex methods of MOSEK are used to achieve a higher speed.
 
 \section{Numerical results and interpretations} \label{Sec:NumRes}
 
@@ -543,13 +545,13 @@ For solvers, it seems that Gurobi may always reach the truly optimal solution, w
 
 Algorithm \hyperlink{EAlg:12}{1+2} is rather slow, with a moderate accuracy. This is because the size of problems tested are rather large, and ADMM, as a general algorithm, is not completely capable of this problem.
 
-Algorithm \ref{Alg:TS} has a high accuracy and precision, but it is still very slow. Actually, the dynamic feature of Python accounts for this failure, which makes discrete algorithms, especially graph algorithms very slow. Actually, programs in \parencite{Schrieber2017} are implemented by Java, which has better proformance in discrete algorithms.
+Algorithm \ref{Alg:TS} has a high accuracy and precision, but it is still very slow. Actually, the dynamic feature of Python accounts for this failure, which makes discrete algorithms, especially graph algorithms very slow. On the contrary, programs in \parencite{Schrieber2017} are implemented by Java, which has better proformance in discrete algorithms.
 
 Algorithm \ref{Alg:MS} is very fast, but its precision is not very high, this is because the multiscale algorithm itself is an approximate algorithm.
 
 All the codes are implemented in Python. These results are carried out on a computer with Intel Core i7-6500U (4 threads) and $\SI{7890}{\mebi\byte}$ RAM. The operating system is Arch Linux 4.14.10 64-bit and the Python environment is provided by Anaconda 4.3.30. Further environment setting can be find in \verb"environmnet.yml".
 
-\section{Conclusion and outlook}
+\section{Conclusion and outlook} \label{Sec:Con}
 
 As for optimal transport problem, our work in this semester ends up here. For these methods we have implemented, we have the following outlooks. 
 
@@ -563,7 +565,7 @@ For numerical experiments, we hope to test all algorithms on the whole DOTmark t
 
 As we discussed before, transportation problem is basis for many high level applications. However, solving the problem is still tough even with these brilliant methods. We also hope to find more time and space efficient methods. This will be left for future research.
 
-\section{Acknowledgement}
+\section{Acknowledgement} \label{Sec:Ack}
 
 We would like to thank Samuel Gerber in the end, for his clarification of details about the article \parencite{Gerber2017}.
 
@@ -593,7 +595,7 @@ We have implemented an alternative direction method of multipliers (ADMM) to the
 \begin{equation}
 \begin{array}{ll}
 \mtx{minimize} & -\sume{i}{1}{m}{ \mu_i \lambda_i } - \sume{j}{1}{n}{ \nu_j \eta_j } + \iota_+ \rbr{e}, \\
-\mtx{subject to} & c_{ i j } - \lambda_i - \eta_j - e_{ i j } = 0. \crbr{ i = 1, 2, \cdots, m; j = 1, 2, \cdots, n }.
+\mtx{subject to} & c_{ i j } - \lambda_i - \eta_j - e_{ i j } = 0. \crbr{ i = 1, 2, \cdots, m; j = 1, 2, \cdots, n }
 \end{array}
 \end{equation}
 The augmented Lagragian is
@@ -604,7 +606,7 @@ L_{\rho} \rbr{ \lambda, \mu, e, d } &= -\sume{i}{1}{m}{ \mu_i \lambda_i } - \sum
 &+ \frac{\rho}{2} \sume{i}{1}{m}{\sume{j}{1}{n}{\rbr{ c_{ i j } - \lambda_i - \eta_j - e_{ i j } }^2}}.
 \end{aligned}
 \end{equation}
-The minimization of $e$ can be done directly by solving for zero gradient and projection, while the minimization of $\lambda$ and $\mu$ can be done by solving for zero gradient. (Actually this system has one degree of freedom, which can be fixed by letting $ \sume{j}{1}{n}{\eta_j} = 0 $ and this does not influence the result)  The algorithm is listed as Algorithm \ref{Alg:ADMMDual}. Solution $s$ can be recovered by $ s = -d $ from KKT conditions.
+The minimization of $e$ can be done directly by solving for zero gradient and projection, while the minimization of $\lambda$ and $\mu$ can be done by solving for zero gradient. (Actually this system has one degree of freedom, which can be fixed by letting $ \sume{j}{1}{n}{\eta_j} = 0 $ and this does not influence the result)  The algorithm is listed as Algorithm \ref{Alg:ADMMDual}, and implemented in \verb"first_ADMM_dual". Solution $s$ can be recovered by $ s = -d $ from KKT conditions.
 
 \begin{algorithm}
 \caption{ADMM for the dual problem}
@@ -636,7 +638,7 @@ L_{\rho} \rbr{ s, \lambda, \eta } &= \sume{i}{1}{n}{\sume{j}{1}{m}{ c_{ i j } s_
 &+ \frac{\rho}{2} \sume{i}{1}{n}{\rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{j}{1}{m}{\rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} }^2}. \\
 \end{aligned}
 \end{equation}
-To minimize $s$, we adopt a projection gradient step to perform a approximate minimization. The algorithm is listed as Algorithm \ref{Alg:ApproxALM}.
+To minimize $s$, we adopt a projection gradient step to perform a approximate minimization. The algorithm is listed as Algorithm \ref{Alg:ApproxALM}, and implemented in \verb"first_ALM_primal.ipynb".
 
 \begin{algorithm}
 \caption{Approximate ALM for the primal problem}
@@ -659,7 +661,7 @@ This algorithm suffers from the approximation step heavily, which makes the erro
 
 \section{Other implementation of transportation simplex method}
 
-As mentioned in Section \ref{Sec:TS}, all the algorithms are implemented in Python, which introduces a huge disadvantages for the transportation simplex method. This is because the dynamic feature of Python, which results in slow discrete operations, especially graph algorithms. Therefore, we empoly the graph package NetworkX in order to realize some graph algorithm, and we call this implementation \textbf{Algorithm \hypertarget{EAlg:3N}{3N}}. However, this algorithm is even slower than Algorithm \ref{Alg:TS}, this is because the package does not include BFS algorithms, which is the key to the whole algorithm.
+As mentioned in Section \ref{Sec:TS}, all the algorithms are implemented in Python, which introduces a huge disadvantages for the transportation simplex method. This is because the dynamic feature of Python, which results in slow discrete operations, especially graph algorithms. Therefore, we empoly the graph package NetworkX in order to realize some graph algorithm, and we call this implementation \textbf{Algorithm \hypertarget{EAlg:3N}{3N}}, whose code is in \verb"discrete_transportation_simplex_networkx.ipynb". However, this algorithm is even slower than Algorithm \ref{Alg:TS}, this is because the package does not include BFS algorithms, which is the key to the whole algorithm.
 
 \section{Multiscale Strategies with ADMM}
 
@@ -673,7 +675,7 @@ Notice that many variables with upper bound $0$ should be $0$ in the optimal sol
 
 We save the optimal plan in a matrix because we want to use the former ADMM algorithm, so the memory cost of the multiscale strategy is not reduced. However, we have seen in the experiment result that the time cost of the multiscale algorithm are lower.
 
-This algorithm with ADMM is listed as Algorithm \ref{Alg:MSADMM}.
+This algorithm with ADMM is listed as Algorithm \ref{Alg:MSADMM}, and implemented in \verb"multiscale_image_func.ipynb".
 
 \begin{algorithm} 
 \caption{Multiscale strategy with ADMM} \label{Alg:MSADMM}
@@ -740,9 +742,9 @@ L_{ \rho \gamma } \rbr{ s, \widetilde{s}, \lambda, \eta, e } &= \sume{i}{1}{n}{\
 &+ \frac{\rho}{2} \sume{i}{1}{n}{\rbr{ \mu_i - \sume{j}{1}{m}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{j}{1}{m}{\rbr{ \nu_j - \sume{i}{1}{n}{s_{ i j }} }^2} + \frac{\rho}{2} \sume{i}{1}{n}{\sume{j}{1}{m}{\rbr{ s_{ i j } - \widetilde{s}_{ i j } }^2}}, \\
 \end{aligned}
 \end{equation}
-where $\delta$ is a small number (valued $10^{-6}$ in numerical experiments) to increase numerical stability. However, this algorithm is still rather slow because ADMM is used.
+where $\delta$ is a small number (valued $10^{-6}$ in numerical experiments) to increase numerical stability. The codes are in \verb"entropy_ADMM_primal.ipynb". However, this algorithm is still rather slow because ADMM is used.
 
-We have also implemented IPFP / Sinkhorn algorithm in \parencite{Benamou2015}. The algorithm is listed as Algorithm \ref{Alg:IPFP}. However, the deficiency of this algorithm lies in numerical instability: the $ \exp \rbr{ -c / \gamma } $ step is rather dangerous for small $\gamma$, which makes it impossible to reach a close solution. Note that a large regularization term leads to a large error.
+We have also implemented IPFP / Sinkhorn algorithm in \parencite{Benamou2015} in \verb"entropy_sinkhorn.ipynb". The algorithm is listed as Algorithm \ref{Alg:IPFP}. However, the deficiency of this algorithm lies in numerical instability: the $ \exp \rbr{ -c / \gamma } $ step is rather dangerous for small $\gamma$, which makes it impossible to reach a close solution. Note that a large regularization term leads to a large error.
 
 \begin{algorithm}
 \caption{Sinkhorn algorithm}
@@ -757,7 +759,7 @@ We have also implemented IPFP / Sinkhorn algorithm in \parencite{Benamou2015}. T
 \STATE $ v^{\rbr{ t + 1 }}_j \slar \nu_j / \rbr{ \xi^{\rmut} u^{\rbr{ t + 1 }} }_j $
 \STATE $ t \slar t + 1 $
 \ENDWHILE
-$s^{\rbr{t}}_{ i j } = u^{\rbr{t}}_i \xi_{ i j } v^{\rbr{t}}_j $
+\STATE $s^{\rbr{t}}_{ i j } = u^{\rbr{t}}_i \xi_{ i j } v^{\rbr{t}}_j $
 \end{algorithmic}
 \end{algorithm}
 
